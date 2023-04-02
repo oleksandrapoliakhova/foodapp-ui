@@ -2,6 +2,8 @@
   <div class="row text-center">
     <h1>Hi {{user?.username}}!</h1>
 
+    <div class="clearfix"></div>
+
     <div class="col-md-4">
       <div class="btn-group">
         <div [(viewDate)]="viewDate" [view]="view" class="btn btn-primary" mwlCalendarPreviousView>
@@ -31,12 +33,12 @@
       </div>
     </div>
 
-
   </div>
 
   <div [ngSwitch]="view">
 
-    <mwl-calendar-month-view (dayClicked)="dayClicked($event.day)" *ngSwitchCase="CalendarView.Month"
+    <mwl-calendar-month-view (dayClicked)="dayClicked($event.day);"
+                             *ngSwitchCase="CalendarView.Month"
                              [events]="events" [viewDate]="viewDate">
     </mwl-calendar-month-view>
 
@@ -44,4 +46,24 @@
     </mwl-calendar-day-view>
 
   </div>
+</div>
+
+<div *ngIf="modalView">
+  <app-food-entry-modal id="modal-1">
+    <div class="modal-header">
+      <h5 class="modal-title">Food Entry - </h5>
+      <button (click)="modalService.close();" class="btn-close" type="button"></button>
+    </div>
+    <div class="modal-body">
+      <p>This bootstrap modal was opened with Angular!</p>
+      <p>
+        <label class="form-label">Page text:</label>
+        <input [(ngModel)]="bodyText" class="form-control" type="text"/>
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button (click)="modalService.close(); " class="btn btn-secondary" type="button">Close</button>
+      <button (click)="modalService.close(); " class="btn btn-primary" type="button">Save</button>
+    </div>
+  </app-food-entry-modal>
 </div>

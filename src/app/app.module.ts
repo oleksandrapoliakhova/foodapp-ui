@@ -13,6 +13,7 @@ import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {AlertComponent} from './alert';
 import {AccountModule} from "./account/account.module";
 import {ErrorInterceptor, fakeBackendProvider, JwtInterceptor} from "./auth-helper";
+import {FoodEntryModalComponent} from './food-entry-modal/food-entry-modal.component';
 
 @NgModule({
   imports: [
@@ -32,7 +33,7 @@ import {ErrorInterceptor, fakeBackendProvider, JwtInterceptor} from "./auth-help
     ReactiveFormsModule,
   ],
   declarations: [AppComponent,
-    CalendarComponent, AlertComponent],
+    CalendarComponent, AlertComponent, FoodEntryModalComponent],
   exports: [AppComponent],
   bootstrap: [AppComponent],
   providers: [

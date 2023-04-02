@@ -5,6 +5,11 @@ export class User {
   token?: string;
 }
 
+export class UserRegister {
+  email?: string;
+  password?: string;
+}
+
 export class Alert {
   id?: string;
   type?: AlertType;
