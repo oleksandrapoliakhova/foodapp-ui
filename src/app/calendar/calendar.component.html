@@ -1,0 +1,47 @@
+<div class="container calendar">
+  <div class="row text-center">
+    <h1>Hi {{user?.username}}!</h1>
+
+    <div class="col-md-4">
+      <div class="btn-group">
+        <div [(viewDate)]="viewDate" [view]="view" class="btn btn-primary" mwlCalendarPreviousView>
+          Previous
+        </div>
+        <div [(viewDate)]="viewDate" class="btn btn-outline-secondary" mwlCalendarToday>
+          Today
+        </div>
+        <div [(viewDate)]="viewDate" [view]="view" class="btn btn-primary" mwlCalendarNextView>
+          Next
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <h3>{{ viewDate | calendarDate:(view + 'ViewTitle'):'en' }}</h3>
+    </div>
+
+    <div class="col-md-4">
+      <div class="btn-group">
+        <div (click)="setView(CalendarView.Month)" [class.active]="view === CalendarView.Month" class="btn btn-primary">
+          Month
+        </div>
+        <div (click)="setView(CalendarView.Day)" [class.active]="view === CalendarView.Day" class="btn btn-primary">
+          Day
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+  <div [ngSwitch]="view">
+
+    <mwl-calendar-month-view (dayClicked)="dayClicked($event.day)" *ngSwitchCase="CalendarView.Month"
+                             [events]="events" [viewDate]="viewDate">
+    </mwl-calendar-month-view>
+
+    <mwl-calendar-day-view *ngSwitchCase="CalendarView.Day" [events]="events" [viewDate]="viewDate">
+    </mwl-calendar-day-view>
+
+  </div>
+</div>
