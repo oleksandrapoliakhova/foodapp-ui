@@ -5,6 +5,15 @@ import {User} from "../model";
 import {AccountService} from "../services/account.service";
 import {ModalService} from "../services/modal.service";
 
+let testdata = {
+  "id": 1,
+  "foodEntry": "rerffe",
+  "foodEntryDate": "2007-12-03",
+  "updatedTime": "13:57:23.166637",
+  "foodTagList": []
+}
+
+
 @Component({
   selector: 'app-calendar',
   templateUrl: './calendar.component.html',
@@ -52,6 +61,10 @@ export class CalendarComponent {
 
   setView(view: CalendarView) {
     this.view = view;
+  }
+
+  logout() {
+    this.accountService.logout();
   }
 
   dayClicked({date, events}: { date: Date; events: CalendarEvent[] }): void {

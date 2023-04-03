@@ -1,6 +1,20 @@
 <div class="container calendar">
+
+  <div class="container">
+
+    <div class="jumbotron">
+
+      <div *ngIf="user" class="fa-pull-right">
+        <a (click)="logout()" class="link-secondary" href="#">Logout</a>
+      </div>
+
+      <h1>FOODAPP</h1>
+      <p>Easy and convenient way to track food and symptoms.</p>
+    </div>
+
+  </div>
+
   <div class="row text-center">
-    <h1>Hi {{user?.username}}!</h1>
 
     <div class="clearfix"></div>
 
@@ -51,15 +65,31 @@
 <div *ngIf="modalView">
   <app-food-entry-modal id="modal-1">
     <div class="modal-header">
-      <h5 class="modal-title">Food Entry - </h5>
+      <h5 class="modal-title">Food Entry - {{dayTime}}</h5>
       <button (click)="modalService.close();" class="btn-close" type="button"></button>
     </div>
     <div class="modal-body">
       <p>This bootstrap modal was opened with Angular!</p>
       <p>
-        <label class="form-label">Page text:</label>
+        <label class="form-label">Enter food:</label>
         <input [(ngModel)]="bodyText" class="form-control" type="text"/>
       </p>
+
+      <span class="badge bg-success">Success</span>
+      <span class="badge bg-info text-dark">Info</span>
+
+      
+      <!--      <button type="button" class="btn btn-primary btn-sm fa-pull-right"-->
+      <!--              data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">-->
+      <!--        Add tag-->
+      <!--      </button>-->
+
+      <!--      <div class="collapse" id="collapseExample">-->
+      <!--        <div class="card card-body">-->
+      <!--          <span class="badge bg-info text-dark">Info</span>-->
+      <!--        </div>-->
+      <!--      </div>-->
+
     </div>
     <div class="modal-footer">
       <button (click)="modalService.close(); " class="btn btn-secondary" type="button">Close</button>

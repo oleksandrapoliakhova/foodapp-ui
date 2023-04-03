@@ -3,14 +3,14 @@ import {Router} from '@angular/router';
 import {HttpClient} from '@angular/common/http';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
-
-import {User, UserRegister} from "../model";
+import {User} from "../model";
 import {environment} from "../../environments/environemnt";
+
 
 @Injectable({providedIn: 'root'})
 export class AccountService {
-  public user: Observable<User | null>;
   private userSubject: BehaviorSubject<User | null>;
+  public user: Observable<User | null>;
 
   constructor(
     private router: Router,
@@ -41,8 +41,8 @@ export class AccountService {
     this.router.navigate(['/account/login']);
   }
 
-  register(userRegister: UserRegister) {
-    return this.http.post(`${environment.apiUrl}/auth/register`, userRegister);
+  register(user: User) {
+    return this.http.post(`${environment.apiUrl}/users/register`, user);
   }
 
   getAll() {
