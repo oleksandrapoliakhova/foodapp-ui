@@ -1,16 +1,17 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {AuthGuard} from "./auth-helper";
 import {CalendarComponent} from "./calendar";
+import {LoginComponent} from "./account/login/login.component";
+import {RegisterComponent} from "./account/register/register.component";
+import {AuthGuard} from "./auth-helper";
 
 const accountModule = () => import('./account/account.module').then(x => x.AccountModule);
 
 const routes: Routes = [
+  {path: 'login', component: LoginComponent},
+  {path: 'register', component: RegisterComponent},
   {path: 'home', component: CalendarComponent, canActivate: [AuthGuard]},
-  {path: 'account', loadChildren: accountModule},
-
-  // otherwise redirect to home
-  {path: '**', redirectTo: ''}
+  {path: '**', redirectTo: 'login'}
 ];
 
 @NgModule({
@@ -18,4 +19,5 @@ const routes: Routes = [
   exports: [RouterModule]
 })
 
-export class AppRoutingModule { }
+export class AppRoutingModule {
+}

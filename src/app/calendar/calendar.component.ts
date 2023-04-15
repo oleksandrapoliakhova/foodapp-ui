@@ -1,9 +1,12 @@
-import {Component} from '@angular/core';
-import {endOfDay, startOfDay} from 'date-fns';
+import {Component, OnInit} from '@angular/core';
+import {startOfDay} from 'date-fns';
 import {CalendarEvent, CalendarView} from 'angular-calendar';
 import {User} from "../model";
 import {AccountService} from "../services/account.service";
 import {ModalService} from "../services/modal.service";
+import {FormBuilder, Validators} from "@angular/forms";
+import * as moment from "moment";
+
 
 let testdata = {
   "id": 1,
@@ -20,7 +23,7 @@ let testdata = {
   styleUrls: ['./calendar.component.scss']
 })
 
-export class CalendarComponent {
+export class CalendarComponent implements OnInit {
   viewDate: Date = new Date();
   view: CalendarView = CalendarView.Month;
   CalendarView = CalendarView;
@@ -55,8 +58,15 @@ export class CalendarComponent {
     }
   ]
 
-  constructor(private accountService: AccountService, public modalService: ModalService) {
+  profileForm = this.fb.group({
+    foodEntry: ['', Validators.required]
+  });
+
+  constructor(private accountService: AccountService, public modalService: ModalService, private fb: FormBuilder) {
     this.user = this.accountService.userValue;
+  }
+
+  ngOnInit() {
   }
 
   setView(view: CalendarView) {
@@ -67,28 +77,43 @@ export class CalendarComponent {
     this.accountService.logout();
   }
 
-  dayClicked({date, events}: { date: Date; events: CalendarEvent[] }): void {
-    console.log(date);
+  dayClicked({date}: { date: Date }): void {
 
     this.modalView = true;
-
     this.modalService.open('modal-1')
+
+    this.bodyText = "123";
+    this.dayTime = date;
+  }
+
+  onSubmit(date: any) {
+    // TODO: Use EventEmitter with form value
+    let entryTimeStamp = new Date();
+    console.log("entryTimeStamp" + entryTimeStamp);
+
+    console.warn(this.profileForm.value);
+    console.warn(date);
+
+    let food = '';
+
+    let newDateObj = moment(entryTimeStamp).add(30, 'm').toDate();
+    console.log("newDateObj" + newDateObj);
+
+    if (this.profileForm.value.foodEntry) {
+      food = this.profileForm.value.foodEntry;
+    }
 
     this.events = [
       ...this.events,
       {
-        title: 'New event',
-        start: startOfDay(date),
-        end: endOfDay(date),
-        color: this.colors.red,
+        title: food,
+        start: entryTimeStamp,
+        end: newDateObj,
+        color: this.colors.blue,
         draggable: true,
       }
     ];
 
-    this.bodyText = "hola";
-    this.dayTime = date;
-
-    //let x=this.adminService.dateFormat(date)
-    //this.openAppointmentList(x)
+    this.profileForm.reset();
   }
 }

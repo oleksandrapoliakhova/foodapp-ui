@@ -1,19 +1,17 @@
 import {NgModule} from '@angular/core';
 import {ReactiveFormsModule} from '@angular/forms';
 import {CommonModule} from '@angular/common'
-import {LayoutComponent} from "./layout/layout.component";
 import {LoginComponent} from "./login/login.component";
 import {RegisterComponent} from "./register/register.component";
-import {AccountRoutingModule} from "./account-routing-module";
+import {RouterLink} from "@angular/router";
 
 @NgModule({
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    AccountRoutingModule
+    RouterLink,
   ],
   declarations: [
-    LayoutComponent,
     LoginComponent,
     RegisterComponent
   ]

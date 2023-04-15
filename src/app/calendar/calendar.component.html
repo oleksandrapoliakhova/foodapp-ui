@@ -65,35 +65,41 @@
 <div *ngIf="modalView">
   <app-food-entry-modal id="modal-1">
     <div class="modal-header">
+      <!--      <h5 class="modal-title">Food Entry - {{dayTime | date:'mediumDate'}}</h5>-->
       <h5 class="modal-title">Food Entry - {{dayTime}}</h5>
-      <button (click)="modalService.close();" class="btn-close" type="button"></button>
+
     </div>
-    <div class="modal-body">
-      <p>This bootstrap modal was opened with Angular!</p>
-      <p>
+
+    <form (ngSubmit)="onSubmit(this.dayTime)" [formGroup]="profileForm">
+
+      <div class="modal-body">
+
         <label class="form-label">Enter food:</label>
-        <input [(ngModel)]="bodyText" class="form-control" type="text"/>
-      </p>
+        <input class="form-control" formControlName="foodEntry" required type="text">
 
-      <span class="badge bg-success">Success</span>
-      <span class="badge bg-info text-dark">Info</span>
+        <!--      <button type="button" class="btn btn-primary btn-sm fa-pull-right"-->
+        <!--              data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">-->
+        <!--        Add tag-->
+        <!--      </button>-->
 
-      
-      <!--      <button type="button" class="btn btn-primary btn-sm fa-pull-right"-->
-      <!--              data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">-->
-      <!--        Add tag-->
-      <!--      </button>-->
+        <!--      <div class="collapse" id="collapseExample">-->
+        <!--        <div class="card card-body">-->
+        <!--          <span class="badge bg-info text-dark">Info</span>-->
+        <!--        </div>-->
+        <!--      </div>-->
 
-      <!--      <div class="collapse" id="collapseExample">-->
-      <!--        <div class="card card-body">-->
-      <!--          <span class="badge bg-info text-dark">Info</span>-->
-      <!--        </div>-->
-      <!--      </div>-->
+      </div>
+      <div class="modal-footer">
+        <button (click)="modalService.close();"
+                class="btn btn-secondary" type="button">Close
+        </button>
+        <button (click)="modalService.close();" [disabled]="!profileForm.valid"
+                class="btn btn-primary" type="submit">Submit
+        </button>
 
-    </div>
-    <div class="modal-footer">
-      <button (click)="modalService.close(); " class="btn btn-secondary" type="button">Close</button>
-      <button (click)="modalService.close(); " class="btn btn-primary" type="button">Save</button>
-    </div>
+      </div>
+    </form>
+
+
   </app-food-entry-modal>
 </div>

@@ -21,6 +21,7 @@ export class ModalService {
   }
 
   open(id: string) {
+    console.log(this.modals);
     // open modal specified by id
     const modal = this.modals.find(x => x.id === id);
 
