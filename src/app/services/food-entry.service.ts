@@ -19,12 +19,14 @@ export class FoodEntryService {
     this.user = this.userSubject.asObservable();
   }
 
-  public get userValue() {
-    return this.userSubject.value;
-  }
-
   saveEntry(foodEntry: string, foodEntryDate: string | null) {
     return this.http.post <FoodEntry>(`${environment.apiUrl}/food-entry/save-food-entry`, {foodEntry, foodEntryDate})
+  }
+
+  deleteEntry(foodEntryId: any): Observable<any> {
+    console.log(foodEntryId);
+    let id = foodEntryId.toString();
+    return this.http.delete <FoodEntry>(`${environment.apiUrl}/food-entry/delete-food-entry/${id}`, {})
   }
 
   getAllEntries(): Observable<any> {

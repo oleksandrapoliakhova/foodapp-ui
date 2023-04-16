@@ -23,36 +23,27 @@ export class CalendarComponent implements OnInit {
   events: CalendarEvent[] = [];
   @ViewChild('modalContent', {static: true}) modalContent: TemplateRef<any> | undefined;
 
-
-  colors: any = {
-    blue: {
-      primary: '#1e90ff',
-      secondary: '#D1E8FF'
-    }
-  };
-
-  modalData: {
-    action: string;
-    event: CalendarEvent;
-  } | undefined;
-
   actions: CalendarEventAction[] = [
     {
       label: '<i class="fas fa-fw fa-pencil-alt"></i>',
       a11yLabel: 'Edit',
       onClick: ({event}: { event: CalendarEvent }): void => {
-        this.handleEvent('Edited', event);
+        this.handleEventFoodEntry('Edited', event);
       },
     },
     {
       label: '<i class="fas fa-fw fa-trash-alt"></i>',
       a11yLabel: 'Delete',
       onClick: ({event}: { event: CalendarEvent }): void => {
-        this.events = this.events.filter((iEvent) => iEvent !== event);
-        this.handleEvent('Deleted', event);
+        this.handleDeleteFoodEntry(event);
       },
     },
   ];
+
+  modalData: {
+    action: string;
+    event: CalendarEvent;
+  } | undefined;
 
   constructor(
     private foodEntryService: FoodEntryService,
@@ -62,25 +53,48 @@ export class CalendarComponent implements OnInit {
     private fb: FormBuilder) {
   }
 
+  handleEventFoodEntry(action: string, event: CalendarEvent): void {
+    this.modalData = {event, action};
+    if (action === 'Deleted') {
+      console.log(action);
+    }
+    if (action === 'Edited') {
+      // upon edit open the modal
+      this.modal.open(this.modalContent, {size: 'lg'});
+    }
+  }
+
   profileForm = this.fb.group({
     foodEntry: ['', Validators.required]
   });
 
-  handleEvent(action: string, event: CalendarEvent): void {
-    this.modalData = {event, action};
-    this.modal.open(this.modalContent, {size: 'lg'});
-  }
-
   ngOnInit(): void {
+
     this.foodEntryService.getAllEntries()
       .subscribe({
         next: (data) => {
           this.foodList = data;
           this.loadFoodEntries(this.foodList);
-          console.log(data);
         },
         error: (e) => console.error(e)
       });
+  }
+
+  saveFoodEntry(food: string, date: Date): FoodEntry | undefined {
+
+    let formattedDate = this.datePipe.transform(date, "yyyy-MM-dd");
+    let savedFoodEntry;
+
+    this.foodEntryService.saveEntry(food, formattedDate)
+      .subscribe({
+        next: (res) => {
+          console.log(res);
+          savedFoodEntry = res;
+        },
+        error: (e) => console.error(e)
+      });
+
+    return savedFoodEntry;
   }
 
   createNewEntry() {
@@ -97,19 +111,6 @@ export class CalendarComponent implements OnInit {
     this.view = view;
   }
 
-  saveFoodEntry(food: string, date: Date): void {
-
-    let formattedDate = this.datePipe.transform(date, "yyyy-MM-dd");
-
-    this.foodEntryService.saveEntry(food, formattedDate)
-      .subscribe({
-        next: (res) => {
-          console.log(res);
-        },
-        error: (e) => console.error(e)
-      });
-  }
-
   onSubmit() {
     let food = '';
     // todo not ideal solution
@@ -120,18 +121,36 @@ export class CalendarComponent implements OnInit {
       date = this.viewDate;
     }
 
+    // save to get the id value:
+    // todo reload on addition?
+    let foodEntry = this.saveFoodEntry(food, date);
+
     this.events = [
       ...this.events,
       {
         title: food,
         start: date,
+        id: foodEntry?.id,
         actions: this.actions,
-        color: this.colors.blue
+        color: {
+          primary: '#1e90ff',
+          secondary: '#D1E8FF'
+        }
       }
     ];
 
-    this.saveFoodEntry(food, date);
     this.profileForm.reset();
+  }
+
+  private handleDeleteFoodEntry(event: CalendarEvent<any>) {
+    console.log(event);
+    this.foodEntryService.deleteEntry(event.id)
+      .subscribe({
+        next: () => {
+          this.events = this.events.filter((iEvent) => iEvent !== event);
+        },
+        error: (e) => console.error(e)
+      });
   }
 
   private loadFoodEntries(foodList: any[]) {
@@ -145,6 +164,7 @@ export class CalendarComponent implements OnInit {
           title: f.foodEntry,
           actions: this.actions,
           start: dateData,
+          id: f.id
         }
       ];
     });
