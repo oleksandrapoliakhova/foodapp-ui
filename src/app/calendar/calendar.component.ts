@@ -1,11 +1,11 @@
-import {Component, OnInit} from '@angular/core';
-import {CalendarEvent, CalendarView} from 'angular-calendar';
-import {FoodEntry, User} from "../model";
-import {AccountService} from "../services/account.service";
+import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {CalendarEvent, CalendarEventAction, CalendarView} from 'angular-calendar';
+import {FoodEntry} from "../model";
 import {ModalService} from "../services/modal.service";
 import {FormBuilder, Validators} from "@angular/forms";
 import {FoodEntryService} from "../services/food-entry.service";
 import {DatePipe} from "@angular/common";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
   selector: 'app-calendar',
@@ -17,38 +17,58 @@ export class CalendarComponent implements OnInit {
   viewDate: Date = new Date();
   view: CalendarView = CalendarView.Month;
   CalendarView = CalendarView;
-  user: User | null;
   modalView = false;
   dayTime: Date | undefined;
   foodList: FoodEntry[] = [];
   events: CalendarEvent[] = [];
+  @ViewChild('modalContent', {static: true}) modalContent: TemplateRef<any> | undefined;
+
 
   colors: any = {
-    red: {
-      primary: '#ad2121',
-      secondary: '#FAE3E3'
-    },
     blue: {
       primary: '#1e90ff',
       secondary: '#D1E8FF'
-    },
-    yellow: {
-      primary: '#e3bc08',
-      secondary: '#FDF1BA'
     }
   };
+
+  modalData: {
+    action: string;
+    event: CalendarEvent;
+  } | undefined;
+
+  actions: CalendarEventAction[] = [
+    {
+      label: '<i class="fas fa-fw fa-pencil-alt"></i>',
+      a11yLabel: 'Edit',
+      onClick: ({event}: { event: CalendarEvent }): void => {
+        this.handleEvent('Edited', event);
+      },
+    },
+    {
+      label: '<i class="fas fa-fw fa-trash-alt"></i>',
+      a11yLabel: 'Delete',
+      onClick: ({event}: { event: CalendarEvent }): void => {
+        this.events = this.events.filter((iEvent) => iEvent !== event);
+        this.handleEvent('Deleted', event);
+      },
+    },
+  ];
+
+  constructor(
+    private foodEntryService: FoodEntryService,
+    public modalService: ModalService,
+    private modal: NgbModal,
+    private datePipe: DatePipe,
+    private fb: FormBuilder) {
+  }
 
   profileForm = this.fb.group({
     foodEntry: ['', Validators.required]
   });
 
-  constructor(private accountService: AccountService,
-              private foodEntryService: FoodEntryService,
-              public modalService: ModalService,
-              private datePipe: DatePipe,
-              private fb: FormBuilder) {
-
-    this.user = this.accountService.userValue;
+  handleEvent(action: string, event: CalendarEvent): void {
+    this.modalData = {event, action};
+    this.modal.open(this.modalContent, {size: 'lg'});
   }
 
   ngOnInit(): void {
@@ -63,18 +83,18 @@ export class CalendarComponent implements OnInit {
       });
   }
 
-  dayClicked({date}: { date: Date }): void {
+  createNewEntry() {
     this.modalView = true;
     this.modalService.open('modal-1');
-    this.dayTime = date;
+  }
+
+  changeDay(date: Date) {
+    this.viewDate = date;
+    this.view = CalendarView.Day;
   }
 
   setView(view: CalendarView) {
     this.view = view;
-  }
-
-  logout() {
-    this.accountService.logout();
   }
 
   saveFoodEntry(food: string, date: Date): void {
@@ -95,9 +115,9 @@ export class CalendarComponent implements OnInit {
     // todo not ideal solution
     let date = new Date();
 
-    if (this.profileForm.value.foodEntry && this.dayTime) {
+    if (this.profileForm.value.foodEntry && this.viewDate) {
       food = this.profileForm.value.foodEntry;
-      date = this.dayTime;
+      date = this.viewDate;
     }
 
     this.events = [
@@ -105,6 +125,7 @@ export class CalendarComponent implements OnInit {
       {
         title: food,
         start: date,
+        actions: this.actions,
         color: this.colors.blue
       }
     ];
@@ -122,6 +143,7 @@ export class CalendarComponent implements OnInit {
         ...this.events,
         {
           title: f.foodEntry,
+          actions: this.actions,
           start: dateData,
         }
       ];

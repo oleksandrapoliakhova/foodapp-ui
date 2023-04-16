@@ -4,9 +4,7 @@
 
     <div class="jumbotron">
 
-      <div *ngIf="user" class="fa-pull-right">
-        <a (click)="logout()" class="link-secondary" href="#">Logout</a>
-      </div>
+        <app-logout></app-logout>
 
       <h1>FOODAPP</h1>
       <p>Easy and convenient way to track food and symptoms.</p>
@@ -49,23 +47,62 @@
 
   </div>
 
+  <div *ngIf="view === 'day'" class="d-grid gap-2">
+    <button (click)="createNewEntry()" class="btn btn-primary add-food" type="button">Add food entry</button>
+  </div>
+
+
   <div [ngSwitch]="view">
 
-    <mwl-calendar-month-view (dayClicked)="dayClicked($event.day);"
+    <mwl-calendar-month-view (dayClicked)="changeDay($event.day.date)"
                              *ngSwitchCase="CalendarView.Month"
-                             [events]="events" [viewDate]="viewDate">
+                             [events]="events"
+                             [viewDate]="viewDate">
     </mwl-calendar-month-view>
 
-    <mwl-calendar-day-view *ngSwitchCase="CalendarView.Day" [events]="events" [viewDate]="viewDate">
+    <mwl-calendar-day-view (eventClicked)="handleEvent('Clicked', $event.event)"
+                           *ngSwitchCase="CalendarView.Day"
+                           [events]="events"
+                           [viewDate]="viewDate">
     </mwl-calendar-day-view>
+
 
   </div>
 </div>
 
+
+<!--MODAL VIEW TO EDIT EXISTING FOOD ENTRY-->
+<ng-template #modalContent let-close="close">
+  <div class="modal-header">
+    <h5 class="modal-title">Event action occurred</h5>
+    <button (click)="close()" class="close" type="button">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div>
+      Action:
+      <pre>{{ modalData?.action }}</pre>
+    </div>
+    <div>
+      Event:
+      <pre>{{ modalData?.event | json }}</pre>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button (click)="close()" class="btn btn-outline-secondary" type="button">
+      OK
+    </button>
+  </div>
+</ng-template>
+
+
+<!--MODAL VIEW TO ADD FOOD ENTRY-->
+
 <div *ngIf="modalView">
   <app-food-entry-modal id="modal-1">
     <div class="modal-header">
-      <h5 class="modal-title">Food Entry - {{dayTime | date:'mediumDate'}}</h5>
+      <h5 class="modal-title">Food Entry - {{this.viewDate | date:'mediumDate'}}</h5>
 
     </div>
 
