@@ -1,21 +1,11 @@
 import {Component, OnInit} from '@angular/core';
-import {startOfDay} from 'date-fns';
 import {CalendarEvent, CalendarView} from 'angular-calendar';
-import {User} from "../model";
+import {FoodEntry, User} from "../model";
 import {AccountService} from "../services/account.service";
 import {ModalService} from "../services/modal.service";
 import {FormBuilder, Validators} from "@angular/forms";
-import * as moment from "moment";
-
-
-let testdata = {
-  "id": 1,
-  "foodEntry": "rerffe",
-  "foodEntryDate": "2007-12-03",
-  "updatedTime": "13:57:23.166637",
-  "foodTagList": []
-}
-
+import {FoodEntryService} from "../services/food-entry.service";
+import {DatePipe} from "@angular/common";
 
 @Component({
   selector: 'app-calendar',
@@ -29,8 +19,9 @@ export class CalendarComponent implements OnInit {
   CalendarView = CalendarView;
   user: User | null;
   modalView = false;
-  bodyText: string | undefined;
   dayTime: Date | undefined;
+  foodList: FoodEntry[] = [];
+  events: CalendarEvent[] = [];
 
   colors: any = {
     red: {
@@ -47,26 +38,35 @@ export class CalendarComponent implements OnInit {
     }
   };
 
-  events: CalendarEvent[] = [
-    {
-      start: startOfDay(new Date()),
-      title: 'First event',
-    },
-    {
-      start: startOfDay(new Date()),
-      title: 'Second event',
-    }
-  ]
-
   profileForm = this.fb.group({
     foodEntry: ['', Validators.required]
   });
 
-  constructor(private accountService: AccountService, public modalService: ModalService, private fb: FormBuilder) {
+  constructor(private accountService: AccountService,
+              private foodEntryService: FoodEntryService,
+              public modalService: ModalService,
+              private datePipe: DatePipe,
+              private fb: FormBuilder) {
+
     this.user = this.accountService.userValue;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
+    this.foodEntryService.getAllEntries()
+      .subscribe({
+        next: (data) => {
+          this.foodList = data;
+          this.loadFoodEntries(this.foodList);
+          console.log(data);
+        },
+        error: (e) => console.error(e)
+      });
+  }
+
+  dayClicked({date}: { date: Date }): void {
+    this.modalView = true;
+    this.modalService.open('modal-1');
+    this.dayTime = date;
   }
 
   setView(view: CalendarView) {
@@ -77,43 +77,54 @@ export class CalendarComponent implements OnInit {
     this.accountService.logout();
   }
 
-  dayClicked({date}: { date: Date }): void {
+  saveFoodEntry(food: string, date: Date): void {
 
-    this.modalView = true;
-    this.modalService.open('modal-1')
+    let formattedDate = this.datePipe.transform(date, "yyyy-MM-dd");
 
-    this.bodyText = "123";
-    this.dayTime = date;
+    this.foodEntryService.saveEntry(food, formattedDate)
+      .subscribe({
+        next: (res) => {
+          console.log(res);
+        },
+        error: (e) => console.error(e)
+      });
   }
 
-  onSubmit(date: any) {
-    // TODO: Use EventEmitter with form value
-    let entryTimeStamp = new Date();
-    console.log("entryTimeStamp" + entryTimeStamp);
-
-    console.warn(this.profileForm.value);
-    console.warn(date);
-
+  onSubmit() {
     let food = '';
+    // todo not ideal solution
+    let date = new Date();
 
-    let newDateObj = moment(entryTimeStamp).add(30, 'm').toDate();
-    console.log("newDateObj" + newDateObj);
-
-    if (this.profileForm.value.foodEntry) {
+    if (this.profileForm.value.foodEntry && this.dayTime) {
       food = this.profileForm.value.foodEntry;
+      date = this.dayTime;
     }
 
     this.events = [
       ...this.events,
       {
         title: food,
-        start: entryTimeStamp,
-        end: newDateObj,
-        color: this.colors.blue,
-        draggable: true,
+        start: date,
+        color: this.colors.blue
       }
     ];
 
+    this.saveFoodEntry(food, date);
     this.profileForm.reset();
+  }
+
+  private loadFoodEntries(foodList: any[]) {
+
+    foodList.forEach(f => {
+      let dateData = new Date(f.foodEntryDate.split('-'));
+
+      this.events = [
+        ...this.events,
+        {
+          title: f.foodEntry,
+          start: dateData,
+        }
+      ];
+    });
   }
 }

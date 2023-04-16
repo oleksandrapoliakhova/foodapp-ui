@@ -5,6 +5,25 @@ export class User {
   token?: string;
 }
 
+export class FoodEntryResponse {
+  foodList?: FoodEntry []
+}
+
+export class FoodEntry {
+  id?: number;
+  foodEntry?: string;
+  foodEntryDate?: string;
+  updatedTime?: string
+  foodTagList?: FoodTag []
+}
+
+export class FoodTag {
+  id?: number;
+  foodTagName?: string;
+  foodTagColor?: string;
+  activeInd?: boolean
+}
+
 export class UserRegister {
   email?: string;
   password?: string;

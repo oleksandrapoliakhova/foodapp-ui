@@ -14,7 +14,7 @@
 
   </div>
 
-  <div class="row text-center">
+  <div class="row text-center view-select">
 
     <div class="clearfix"></div>
 
@@ -65,12 +65,11 @@
 <div *ngIf="modalView">
   <app-food-entry-modal id="modal-1">
     <div class="modal-header">
-      <!--      <h5 class="modal-title">Food Entry - {{dayTime | date:'mediumDate'}}</h5>-->
-      <h5 class="modal-title">Food Entry - {{dayTime}}</h5>
+      <h5 class="modal-title">Food Entry - {{dayTime | date:'mediumDate'}}</h5>
 
     </div>
 
-    <form (ngSubmit)="onSubmit(this.dayTime)" [formGroup]="profileForm">
+    <form (ngSubmit)="onSubmit()" [formGroup]="profileForm">
 
       <div class="modal-body">
 

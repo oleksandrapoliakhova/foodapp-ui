@@ -3,11 +3,11 @@
   <div class="card-body">
     <form (ngSubmit)="onSubmit()" [formGroup]="form">
       <div class="mb-3">
-        <label class="form-label">Username</label>
-        <input [ngClass]="{ 'is-invalid': submitted && f.username.errors }" class="form-control" formControlName="username"
+        <label class="form-label">Email</label>
+        <input [ngClass]="{ 'is-invalid': submitted && f.email.errors }" class="form-control" formControlName="email"
                type="text"/>
-        <div *ngIf="submitted && f.username.errors" class="invalid-feedback">
-          <div *ngIf="f.username.errors.required">Username is required</div>
+        <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
+          <div *ngIf="f.email.errors.required">Email is required</div>
         </div>
       </div>
       <div class="mb-3">

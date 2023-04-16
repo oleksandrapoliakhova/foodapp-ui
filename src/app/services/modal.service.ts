@@ -6,6 +6,9 @@ export class ModalService {
   private modals: FoodEntryModalComponent[] = [];
 
   add(modal: FoodEntryModalComponent) {
+    console.log("add service")
+    console.log(modal)
+
     // ensure component has a unique id attribute
     if (!modal.id || this.modals.find(x => x.id === modal.id)) {
       throw new Error('modal must have a unique id attribute');
@@ -21,7 +24,8 @@ export class ModalService {
   }
 
   open(id: string) {
-    console.log(this.modals);
+    console.log("open service")
+
     // open modal specified by id
     const modal = this.modals.find(x => x.id === id);
 

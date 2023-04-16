@@ -1,5 +1,5 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {CommonModule, DatePipe} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {BrowserModule} from '@angular/platform-browser';
 import {FlatpickrModule} from 'angularx-flatpickr';
@@ -12,8 +12,8 @@ import {CalendarComponent} from './calendar';
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {AlertComponent} from './alert';
 import {AccountModule} from "./account/account.module";
-import {ErrorInterceptor, fakeBackendProvider, JwtInterceptor} from "./auth-helper";
-import {FoodEntryModalComponent} from './food-entry-modal/food-entry-modal.component';
+import {ErrorInterceptor, JwtInterceptor} from "./auth-helper";
+import {FoodEntryModalComponent} from './food-entry-modal';
 
 @NgModule({
   imports: [
@@ -37,11 +37,9 @@ import {FoodEntryModalComponent} from './food-entry-modal/food-entry-modal.compo
   exports: [AppComponent],
   bootstrap: [AppComponent],
   providers: [
+    DatePipe,
     {provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true},
-    {provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true},
-
-    // provider used to create fake backend
-    fakeBackendProvider
+    {provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true}
   ]
 })
 export class AppModule {

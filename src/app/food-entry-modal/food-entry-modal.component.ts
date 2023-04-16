@@ -17,7 +17,10 @@ export class FoodEntryModalComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // add self (this modal instance) to the modal service so it can be opened from any component
-    console.log(this);
+    console.log("init modal comp");
+
+    console.log("this el" + this.el);
+    console.log("this modal" + this);
     this.modalService.add(this);
 
     // move element to bottom of page (just before </body>) so it can be displayed above everything else
@@ -34,12 +37,12 @@ export class FoodEntryModalComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     // remove self from modal service
     this.modalService.remove(this);
-
     // remove modal element from html
     this.element.remove();
   }
 
   open() {
+    console.log("open")
     this.element.style.display = 'block';
     document.body.classList.add('modal-open');
     this.isOpen = true;
