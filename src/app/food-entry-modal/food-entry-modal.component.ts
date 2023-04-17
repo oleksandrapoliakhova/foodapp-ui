@@ -16,6 +16,7 @@ export class FoodEntryModalComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+
     this.modalService.add(this);
 
     // move element to bottom of page (just before </body>) so it can be displayed above everything else

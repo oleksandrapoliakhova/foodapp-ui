@@ -60,40 +60,13 @@
                              [viewDate]="viewDate">
     </mwl-calendar-month-view>
 
-    <mwl-calendar-day-view (eventClicked)="handleEventFoodEntry('Clicked', $event.event)"
-                           *ngSwitchCase="CalendarView.Day"
+    <mwl-calendar-day-view *ngSwitchCase="CalendarView.Day"
                            [events]="events"
                            [viewDate]="viewDate">
     </mwl-calendar-day-view>
 
   </div>
 </div>
-
-
-<!--MODAL VIEW TO EDIT EXISTING FOOD ENTRY-->
-<ng-template #modalContent let-close="close">
-  <div class="modal-header">
-    <h5 class="modal-title">Event action occurred</h5>
-    <button (click)="close()" class="close" type="button">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div class="modal-body">
-    <div>
-      Action:
-      <pre>{{ modalData?.action }}</pre>
-    </div>
-    <div>
-      Event:
-      <pre>{{ modalData?.event | json }}</pre>
-    </div>
-  </div>
-  <div class="modal-footer">
-    <button (click)="close()" class="btn btn-outline-secondary" type="button">
-      OK
-    </button>
-  </div>
-</ng-template>
 
 
 <!--MODAL VIEW TO ADD FOOD ENTRY-->
@@ -117,7 +90,7 @@
 
       </div>
       <div class="modal-footer">
-        <button (click)="modalService.close();"
+        <button (click)="modalService.close(); modalView = false"
                 class="btn btn-secondary" type="button">Close
         </button>
         <button (click)="modalService.close();" [disabled]="!profileForm.valid"

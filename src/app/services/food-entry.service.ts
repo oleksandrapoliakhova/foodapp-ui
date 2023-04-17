@@ -23,8 +23,11 @@ export class FoodEntryService {
     return this.http.post <FoodEntry>(`${environment.apiUrl}/food-entry/save-food-entry`, {foodEntry, foodEntryDate})
   }
 
+  updateEntry(foodEntry: { id: string | number | undefined; foodEntry: string }) {
+    return this.http.post <FoodEntry>(`${environment.apiUrl}/food-entry/update-food-entry`, {foodEntry})
+  }
+
   deleteEntry(foodEntryId: any): Observable<any> {
-    console.log(foodEntryId);
     let id = foodEntryId.toString();
     return this.http.delete <FoodEntry>(`${environment.apiUrl}/food-entry/delete-food-entry/${id}`, {})
   }

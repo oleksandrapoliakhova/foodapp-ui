@@ -18,19 +18,11 @@ export class CalendarComponent implements OnInit {
   view: CalendarView = CalendarView.Month;
   CalendarView = CalendarView;
   modalView = false;
-  dayTime: Date | undefined;
   foodList: FoodEntry[] = [];
   events: CalendarEvent[] = [];
   @ViewChild('modalContent', {static: true}) modalContent: TemplateRef<any> | undefined;
 
   actions: CalendarEventAction[] = [
-    {
-      label: '<i class="fas fa-fw fa-pencil-alt"></i>',
-      a11yLabel: 'Edit',
-      onClick: ({event}: { event: CalendarEvent }): void => {
-        this.handleEventFoodEntry('Edited', event);
-      },
-    },
     {
       label: '<i class="fas fa-fw fa-trash-alt"></i>',
       a11yLabel: 'Delete',
@@ -40,28 +32,12 @@ export class CalendarComponent implements OnInit {
     },
   ];
 
-  modalData: {
-    action: string;
-    event: CalendarEvent;
-  } | undefined;
-
   constructor(
     private foodEntryService: FoodEntryService,
     public modalService: ModalService,
     private modal: NgbModal,
     private datePipe: DatePipe,
     private fb: FormBuilder) {
-  }
-
-  handleEventFoodEntry(action: string, event: CalendarEvent): void {
-    this.modalData = {event, action};
-    if (action === 'Deleted') {
-      console.log(action);
-    }
-    if (action === 'Edited') {
-      // upon edit open the modal
-      this.modal.open(this.modalContent, {size: 'lg'});
-    }
   }
 
   profileForm = this.fb.group({
@@ -80,23 +56,6 @@ export class CalendarComponent implements OnInit {
       });
   }
 
-  saveFoodEntry(food: string, date: Date): FoodEntry | undefined {
-
-    let formattedDate = this.datePipe.transform(date, "yyyy-MM-dd");
-    let savedFoodEntry;
-
-    this.foodEntryService.saveEntry(food, formattedDate)
-      .subscribe({
-        next: (res) => {
-          console.log(res);
-          savedFoodEntry = res;
-        },
-        error: (e) => console.error(e)
-      });
-
-    return savedFoodEntry;
-  }
-
   createNewEntry() {
     this.modalView = true;
     this.modalService.open('modal-1');
@@ -112,6 +71,7 @@ export class CalendarComponent implements OnInit {
   }
 
   onSubmit() {
+    this.modalView = false;
     let food = '';
     // todo not ideal solution
     let date = new Date();
@@ -121,25 +81,29 @@ export class CalendarComponent implements OnInit {
       date = this.viewDate;
     }
 
-    // save to get the id value:
-    // todo reload on addition?
-    let foodEntry = this.saveFoodEntry(food, date);
+    let formattedDate = this.datePipe.transform(date, "yyyy-MM-dd");
 
-    this.events = [
-      ...this.events,
-      {
-        title: food,
-        start: date,
-        id: foodEntry?.id,
-        actions: this.actions,
-        color: {
-          primary: '#1e90ff',
-          secondary: '#D1E8FF'
-        }
-      }
-    ];
-
-    this.profileForm.reset();
+    this.foodEntryService.saveEntry(food, formattedDate)
+      .subscribe({
+        next: (res) => {
+          console.log(res);
+          this.events = [
+            ...this.events,
+            {
+              title: food,
+              start: date,
+              id: res?.id,
+              actions: this.actions,
+              color: {
+                primary: '#1e90ff',
+                secondary: '#D1E8FF'
+              }
+            }
+          ];
+          this.profileForm.reset();
+        },
+        error: (e) => console.error(e)
+      });
   }
 
   private handleDeleteFoodEntry(event: CalendarEvent<any>) {
