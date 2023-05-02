@@ -1,6 +1,6 @@
 # Steps to run application
 
-1. Run 'npm install'
+1. Run 'npm install' in the terminal.
 2. Verify run configurations
 
 ![img.png](img.png)
