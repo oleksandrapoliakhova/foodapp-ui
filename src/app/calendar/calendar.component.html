@@ -1,15 +1,11 @@
 <div class="container calendar">
 
   <div class="container">
-
     <div class="jumbotron">
-
       <app-logout></app-logout>
-
       <h1>FOODAPP</h1>
       <p>Easy and convenient way to track food and symptoms.</p>
     </div>
-
   </div>
 
   <div class="row text-center view-select">
@@ -47,57 +43,76 @@
 
   </div>
 
+  <div *ngIf="view === 'month'">
+    <app-search></app-search>
+  </div>
+
   <div *ngIf="view === 'day'" class="d-grid gap-2">
     <button (click)="createNewEntry()" class="btn btn-primary add-food" type="button">Add food entry</button>
+
+    <div *ngFor="let e of getFilteredEvents(events)" class="list-group">
+      <div class="list-group-item list-group-item-action">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">{{e.title}} - {{e.start | date:'shortTime'}}</h5>
+          <i (click)="handleDeleteFoodEntry(e)" class="fas fa-fw fa-trash-alt pointer"></i>
+        </div>
+      </div>
+    </div>
   </div>
 
 
   <div [ngSwitch]="view">
-
     <mwl-calendar-month-view (dayClicked)="changeDay($event.day.date)"
                              *ngSwitchCase="CalendarView.Month"
                              [events]="events"
                              [viewDate]="viewDate">
     </mwl-calendar-month-view>
-
-    <mwl-calendar-day-view *ngSwitchCase="CalendarView.Day"
-                           [events]="events"
-                           [viewDate]="viewDate">
-    </mwl-calendar-day-view>
-
   </div>
-</div>
 
 
-<!--MODAL VIEW TO ADD FOOD ENTRY-->
+  <!--MODAL VIEW TO ADD FOOD ENTRY-->
 
-<div *ngIf="modalView">
-  <app-food-entry-modal id="modal-1">
-    <div class="modal-header">
-      <h5 class="modal-title">Food Entry - {{this.viewDate | date:'mediumDate'}}</h5>
+  <div *ngIf="modalView">
+    <app-food-entry-modal id="modal-1">
+      <div class="modal-header">
+        <h5 class="modal-title">Food Entry - {{this.viewDate | date:'mediumDate'}}</h5>
+      </div>
 
-    </div>
+      <form (ngSubmit)="onSubmit()" [formGroup]="profileForm">
 
-    <form (ngSubmit)="onSubmit()" [formGroup]="profileForm">
+        <div class="modal-body">
 
-      <div class="modal-body">
+          <div class="form-group">
+            <label for="exampleFormControlTextarea1">Enter food:</label>
+            <textarea class="form-control" formControlName="foodEntry" id="exampleFormControlTextarea1"
+                      rows="3"></textarea>
+          </div>
 
-        <div class="form-group">
-          <label for="exampleFormControlTextarea1">Enter food:</label>
-          <textarea class="form-control" formControlName="foodEntry" id="exampleFormControlTextarea1"
-                    rows="3"></textarea>
+          <div class="tags">
+            <h4><span class="badge bg-success">New</span></h4>
+          </div>
+
+          <div>
+            <button (click)="openTagForm()" class="btn btn-outline-dark" type="button">
+              Create Tags
+              <i class="fa fa-plus-circle"></i>
+            </button>
+          </div>
+
+          <div *ngIf="tagForm">
+            <app-create-tag-form></app-create-tag-form>
+          </div>
+
+          <div class="modal-footer">
+            <button (click)="modalService.close(); modalView = false"
+                    class="btn btn-secondary" type="button">Close
+            </button>
+            <button (click)="modalService.close();" [disabled]="!profileForm.valid"
+                    class="btn btn-primary" type="submit">Submit
+            </button>
+          </div>
         </div>
-
-      </div>
-      <div class="modal-footer">
-        <button (click)="modalService.close(); modalView = false"
-                class="btn btn-secondary" type="button">Close
-        </button>
-        <button (click)="modalService.close();" [disabled]="!profileForm.valid"
-                class="btn btn-primary" type="submit">Submit
-        </button>
-
-      </div>
-    </form>
-  </app-food-entry-modal>
+      </form>
+    </app-food-entry-modal>
+  </div>
 </div>

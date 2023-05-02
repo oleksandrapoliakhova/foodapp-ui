@@ -1,0 +1,17 @@
+<div class="input-group">
+  <input #entry aria-describedby="basic-addon2" aria-label="Search food entry or food tag"
+         class="form-control"
+         placeholder="Search food entry or food tag"
+         type="text">
+
+  <div class="input-group-append">
+    <button (click)="searchFoodEntries(entry.value);"
+            class="btn btn-outline-success" type="button">Food Entry
+    </button>
+
+    <button (click)="searchFoodTags(entry.value);"
+            class="btn btn-outline-success" type="button">Food Tag
+    </button>
+
+  </div>
+</div>

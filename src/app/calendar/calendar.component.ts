@@ -1,5 +1,5 @@
 import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {CalendarEvent, CalendarEventAction, CalendarView} from 'angular-calendar';
+import {CalendarEvent, CalendarView} from 'angular-calendar';
 import {FoodEntry} from "../model";
 import {ModalService} from "../services/modal.service";
 import {FormBuilder, Validators} from "@angular/forms";
@@ -18,19 +18,10 @@ export class CalendarComponent implements OnInit {
   view: CalendarView = CalendarView.Month;
   CalendarView = CalendarView;
   modalView = false;
+  tagForm = false;
   foodList: FoodEntry[] = [];
   events: CalendarEvent[] = [];
   @ViewChild('modalContent', {static: true}) modalContent: TemplateRef<any> | undefined;
-
-  actions: CalendarEventAction[] = [
-    {
-      label: '<i class="fas fa-fw fa-trash-alt"></i>',
-      a11yLabel: 'Delete',
-      onClick: ({event}: { event: CalendarEvent }): void => {
-        this.handleDeleteFoodEntry(event);
-      },
-    },
-  ];
 
   constructor(
     private foodEntryService: FoodEntryService,
@@ -73,7 +64,6 @@ export class CalendarComponent implements OnInit {
   onSubmit() {
     this.modalView = false;
     let food = '';
-    // todo not ideal solution
     let date = new Date();
 
     if (this.profileForm.value.foodEntry && this.viewDate) {
@@ -82,8 +72,9 @@ export class CalendarComponent implements OnInit {
     }
 
     let formattedDate = this.datePipe.transform(date, "yyyy-MM-dd");
+    let updatedTime = this.datePipe.transform(date, "hh:mm:ss");
 
-    this.foodEntryService.saveEntry(food, formattedDate)
+    this.foodEntryService.saveEntry(food, formattedDate, updatedTime)
       .subscribe({
         next: (res) => {
           console.log(res);
@@ -91,13 +82,8 @@ export class CalendarComponent implements OnInit {
             ...this.events,
             {
               title: food,
-              start: date,
+              start: new Date(),
               id: res?.id,
-              actions: this.actions,
-              color: {
-                primary: '#1e90ff',
-                secondary: '#D1E8FF'
-              }
             }
           ];
           this.profileForm.reset();
@@ -106,12 +92,12 @@ export class CalendarComponent implements OnInit {
       });
   }
 
-  private handleDeleteFoodEntry(event: CalendarEvent<any>) {
-    console.log(event);
-    this.foodEntryService.deleteEntry(event.id)
+  handleDeleteFoodEntry(food: CalendarEvent) {
+    console.log(food);
+    this.foodEntryService.deleteEntry(food.id)
       .subscribe({
         next: () => {
-          this.events = this.events.filter((iEvent) => iEvent !== event);
+          this.events = this.events.filter((iEvent) => iEvent !== food);
         },
         error: (e) => console.error(e)
       });
@@ -126,11 +112,18 @@ export class CalendarComponent implements OnInit {
         ...this.events,
         {
           title: f.foodEntry,
-          actions: this.actions,
           start: dateData,
           id: f.id
         }
       ];
     });
+  }
+
+  openTagForm() {
+    this.tagForm = true;
+  }
+
+  getFilteredEvents(events: CalendarEvent[]) {
+    return events.filter(e => e.start.toLocaleDateString('sv') === this.viewDate.toLocaleDateString('sv'));
   }
 }
