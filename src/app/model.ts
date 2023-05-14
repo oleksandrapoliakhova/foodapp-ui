@@ -12,7 +12,7 @@ export class FoodEntryResponse {
 export class FoodEntry {
   id?: number;
   foodEntry?: string;
-  foodEntryDate?: string;
+  foodEntryDate?: Date;
   updatedTime?: string
   foodTagList?: FoodTag []
 }

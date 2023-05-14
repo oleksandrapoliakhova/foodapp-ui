@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, EventEmitter, Output} from '@angular/core';
 import {FoodEntryService} from "../services/food-entry.service";
 import {FoodEntry} from "../model";
 import {FoodTagService} from "../services/food-tag.service";
@@ -9,6 +9,8 @@ import {FoodTagService} from "../services/food-tag.service";
   styleUrls: ['./search.component.scss']
 })
 export class SearchComponent {
+  @Output() searchResults = new EventEmitter<boolean>();
+
   foodList: FoodEntry[] = [];
 
   constructor(
@@ -16,26 +18,34 @@ export class SearchComponent {
     private foodTagService: FoodTagService) {
   }
 
-  searchFoodEntries(newHero: string) {
-    this.foodEntryService.searchEntries(newHero)
+  searchFoodEntries(value: string) {
+    this.foodEntryService.searchEntries(value)
       .subscribe({
         next: (data) => {
           this.foodList = data;
-          console.log(this.foodList)
+          this.emitSearchResult();
         },
         error: (e) => console.error(e)
       });
   }
 
   searchFoodTags(value: string) {
-    this.foodEntryService.searchEntries(value)
+    this.foodTagService.searchTags(value)
       .subscribe({
         next: (data) => {
           this.foodList = data;
-          console.log(this.foodList)
+          this.emitSearchResult();
         },
         error: (e) => console.error(e)
       })
+  }
 
+  /**
+   * if foodList os present emit true
+   */
+  private emitSearchResult() {
+    if (this.foodList.length != 0) {
+      this.searchResults.emit(true);
+    }
   }
 }

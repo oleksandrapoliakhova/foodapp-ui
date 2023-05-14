@@ -31,6 +31,6 @@ export class FoodTagService {
   }
 
   searchTags(stringSearch: string): Observable<any> {
-    return this.http.get <FoodEntryResponse>(`${environment.apiUrl}/food-entry/search-food-entries/${stringSearch}`)
+    return this.http.get <FoodEntryResponse>(`${environment.apiUrl}/food-entry/search-food-tags/${stringSearch}`)
   }
 }

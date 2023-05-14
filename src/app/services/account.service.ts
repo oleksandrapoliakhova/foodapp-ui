@@ -27,13 +27,14 @@ export class AccountService {
   login(email: string, password: string) {
     return this.http.post<User>(`${environment.apiUrl}/auth/authenticate`, {email, password})
       .pipe(map(user => {
+        localStorage.setItem('user', JSON.stringify(user));
         this.userSubject.next(user);
         return user;
       }));
   }
 
   logout() {
-    // remove user from local storage and set current user to null
+    localStorage.removeItem('user');
     return this.http.post<User>(`${environment.apiUrl}/auth/logout`, {})
       .pipe(map(user => {
         this.userSubject.next(user);

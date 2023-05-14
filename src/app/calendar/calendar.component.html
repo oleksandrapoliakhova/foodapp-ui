@@ -14,13 +14,15 @@
 
     <div class="col-md-4">
       <div class="btn-group">
-        <div [(viewDate)]="viewDate" [view]="view" class="btn btn-primary" mwlCalendarPreviousView>
+        <div (click)="updateDayEvents()" [(viewDate)]="viewDate" [view]="view" class="btn btn-primary"
+             mwlCalendarPreviousView>
           Previous
         </div>
-        <div [(viewDate)]="viewDate" class="btn btn-outline-secondary" mwlCalendarToday>
+        <div (click)="updateDayEvents()" [(viewDate)]="viewDate" class="btn btn-outline-secondary" mwlCalendarToday>
           Today
         </div>
-        <div [(viewDate)]="viewDate" [view]="view" class="btn btn-primary" mwlCalendarNextView>
+        <div (click)="updateDayEvents()" [(viewDate)]="viewDate" [view]="view" class="btn btn-primary"
+             mwlCalendarNextView>
           Next
         </div>
       </div>
@@ -40,35 +42,42 @@
         </div>
       </div>
     </div>
-
   </div>
 
   <div *ngIf="view === 'month'">
-    <app-search></app-search>
+    <app-search (searchResults)="onSearch($event)"></app-search>
   </div>
 
   <div *ngIf="view === 'day'" class="d-grid gap-2">
     <button (click)="createNewEntry()" class="btn btn-primary add-food" type="button">Add food entry</button>
 
-    <div *ngFor="let e of getFilteredEvents(events)" class="list-group">
-      <div class="list-group-item list-group-item-action">
-        <div class="d-flex w-100 justify-content-between">
-          <h5 class="mb-1">{{e.title}} - {{e.start | date:'shortTime'}}</h5>
-          <i (click)="handleDeleteFoodEntry(e)" class="fas fa-fw fa-trash-alt pointer"></i>
+    <div *ngFor="let e of dayFoodList" class="list-group">
+      <div class="list-group">
+
+        <div class="list-group-item list-group-item-action flex-column align-items-start">
+          <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">{{e.foodEntry}}</h5>
+            <div class="float-right">
+              <i (click)="handleDeleteFoodEntry(e)" class="fas fa-fw fa-trash-alt pointer"></i>
+              <i (click)="updateFoodEntry(e)" class="fas fa-fw fa-pencil-alt pointer"></i>
+            </div>
+          </div>
+          <small class="text-muted">{{e.updatedTime}}</small>
         </div>
+
       </div>
     </div>
   </div>
 
-
-  <div [ngSwitch]="view">
-    <mwl-calendar-month-view (dayClicked)="changeDay($event.day.date)"
-                             *ngSwitchCase="CalendarView.Month"
-                             [events]="events"
-                             [viewDate]="viewDate">
-    </mwl-calendar-month-view>
+  <div *ngIf="!this.searchView">
+    <div [ngSwitch]="view">
+      <mwl-calendar-month-view (dayClicked)="changeDay($event.day.date)"
+                               *ngSwitchCase="CalendarView.Month"
+                               [events]="events"
+                               [viewDate]="viewDate">
+      </mwl-calendar-month-view>
+    </div>
   </div>
-
 
   <!--MODAL VIEW TO ADD FOOD ENTRY-->
 
@@ -93,14 +102,37 @@
           </div>
 
           <div>
-            <button (click)="openTagForm()" class="btn btn-outline-dark" type="button">
-              Create Tags
+            <button (click)="addTag()" class="btn btn-outline-dark" type="button">
+              Add New Tag
               <i class="fa fa-plus-circle"></i>
             </button>
           </div>
 
-          <div *ngIf="tagForm">
-            <app-create-tag-form></app-create-tag-form>
+          <!-- tag form-->
+          <div class="form-group col">
+
+            <div *ngFor="let tagName of getTagsFormControls(); let i = index">
+              <div class="form-group col">
+                <label for="name">Tag Name</label>
+                <input [formControl]="tagName" class="form-control" id="name" type="text">
+              </div>
+
+              <div class="form-group col">
+                <label for="color">Color</label>
+                <select class="form-control" id="color">
+                  <option selected>Choose Tag Color</option>
+                  <option class="badge badge-primary"> Blue</option>
+                  <option class="badge badge-success"> Green</option>
+                  <option class="badge badge-danger"> Red</option>
+                  <option class="badge badge-warning"> Yellow</option>
+                  <option class="badge badge-light"> White</option>
+                  <option class="badge badge-dark"> Black</option>
+                </select>
+              </div>
+
+              <button (click)="removeTags(i)">Remove Tag</button>
+            </div>
+
           </div>
 
           <div class="modal-footer">
