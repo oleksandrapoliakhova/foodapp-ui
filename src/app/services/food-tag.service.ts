@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BehaviorSubject, Observable} from 'rxjs';
-import {FoodEntry, FoodEntryResponse, User} from "../model";
+import {FoodEntryResponse, FoodTag, User} from "../model";
 import {environment} from "../../environments/environemnt";
 
 
@@ -17,17 +17,26 @@ export class FoodTagService {
     this.user = this.userSubject.asObservable();
   }
 
-  saveTag(foodEntry: string, foodEntryDate: string | null) {
-    return this.http.post <FoodEntry>(`${environment.apiUrl}/food-entry/save-food-entry`, {foodEntry, foodEntryDate})
+  saveTag(foodTagName: string | undefined, foodTagColor: string | undefined) {
+    console.log("saving tag", foodTagName, foodTagColor);
+    return this.http.post <FoodTag>(`${environment.apiUrl}/food-tag/save-food-tag`, {foodTagName, foodTagColor})
   }
 
   deleteTag(foodEntryId: any): Observable<any> {
     let id = foodEntryId.toString();
-    return this.http.delete <FoodEntry>(`${environment.apiUrl}/food-entry/delete-food-entry/${id}`, {})
+    return this.http.delete <FoodTag>(`${environment.apiUrl}/food-entry/delete-food-entry/${id}`, {})
   }
 
   getAllTags(): Observable<any> {
     return this.http.get <FoodEntryResponse>(`${environment.apiUrl}/food-entry/get-all-food-entries`)
+  }
+
+  appendTag(foodEntryId: any, foodTagId: any) {
+    let id = foodEntryId.toString();
+    let id2 = foodTagId.toString();
+    console.log("appending tag", id, id2);
+    console.log(`${environment.apiUrl}/food-tag/append-food-tag/${id}/food-tags/${id2}`);
+    return this.http.post <FoodEntryResponse>(`${environment.apiUrl}/food-tag/append-food-tag/${id}/food-tags/${id2}`, {})
   }
 
   searchTags(stringSearch: string): Observable<any> {

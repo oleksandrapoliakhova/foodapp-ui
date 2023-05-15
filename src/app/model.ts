@@ -24,6 +24,11 @@ export class FoodTag {
   activeInd?: boolean
 }
 
+export class CreationFoodTag {
+  foodTagName?: string;
+  foodTagColor?: string;
+}
+
 export class UserRegister {
   email?: string;
   password?: string;
@@ -54,3 +59,9 @@ export class AlertOptions {
   autoClose?: boolean;
   keepAfterRouteChange?: boolean;
 }
+
+export const tagLookUp = new Map<string, string>([
+  ['Blue', 'bg-primary'],
+  ['Red', 'bg-danger'],
+  ['Green', 'bg-success']
+]);

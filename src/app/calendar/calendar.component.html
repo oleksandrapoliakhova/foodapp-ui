@@ -62,6 +62,9 @@
               <i (click)="updateFoodEntry(e)" class="fas fa-fw fa-pencil-alt pointer"></i>
             </div>
           </div>
+          <div *ngFor="let tag of e.foodTagList">
+            <p [innerHTML]="getElementTag(tag)"></p>
+          </div>
           <small class="text-muted">{{e.updatedTime}}</small>
         </div>
 
@@ -98,7 +101,7 @@
           </div>
 
           <div class="tags">
-            <h4><span class="badge bg-success">New</span></h4>
+            <!-- to do -->
           </div>
 
           <div>
@@ -111,26 +114,30 @@
           <!-- tag form-->
           <div class="form-group col">
 
-            <div *ngFor="let tagName of getTagsFormControls(); let i = index">
-              <div class="form-group col">
-                <label for="name">Tag Name</label>
-                <input [formControl]="tagName" class="form-control" id="name" type="text">
-              </div>
+            <div *ngFor="let tag of ticketFormGroups; let i = index" formArrayName="newTags">
 
-              <div class="form-group col">
-                <label for="color">Color</label>
-                <select class="form-control" id="color">
-                  <option selected>Choose Tag Color</option>
-                  <option class="badge badge-primary"> Blue</option>
-                  <option class="badge badge-success"> Green</option>
-                  <option class="badge badge-danger"> Red</option>
-                  <option class="badge badge-warning"> Yellow</option>
-                  <option class="badge badge-light"> White</option>
-                  <option class="badge badge-dark"> Black</option>
-                </select>
-              </div>
+              <div [formGroupName]="i" [formGroup]="tag" class="form-row">
 
-              <button (click)="removeTags(i)">Remove Tag</button>
+                <div class="form-group col">
+                  <label>Tag Name</label>
+                  <input class="form-control" formControlName="foodTagName" type="text">
+                </div>
+
+                <div class="form-group col">
+                  <label>Color</label>
+                  <select class="form-control" formControlName="foodTagColor">
+                    <option selected>Choose Tag Color</option>
+                    <option class="badge badge-primary"> Blue</option>
+                    <option class="badge badge-success"> Green</option>
+                    <option class="badge badge-danger"> Red</option>
+                    <option class="badge badge-warning"> Yellow</option>
+                    <option class="badge badge-light"> White</option>
+                    <option class="badge badge-dark"> Black</option>
+                  </select>
+                </div>
+
+                <button (click)="removeTags(i)">Remove Tag</button>
+              </div>
             </div>
 
           </div>
