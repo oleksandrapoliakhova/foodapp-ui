@@ -28,7 +28,7 @@ export class FoodTagService {
   }
 
   getAllTags(): Observable<any> {
-    return this.http.get <FoodEntryResponse>(`${environment.apiUrl}/food-entry/get-all-food-entries`)
+    return this.http.get <FoodTag>(`${environment.apiUrl}/food-tag/get-all-food-tags`)
   }
 
   appendTag(foodEntryId: any, foodTagId: any) {

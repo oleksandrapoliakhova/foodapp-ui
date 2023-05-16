@@ -20,12 +20,12 @@ export class CalendarComponent implements OnInit {
   creationFoodTags: CreationFoodTag[] = []
   CalendarView = CalendarView;
   modalView = false;
-  public elementTag: string
   foodList: FoodEntry[] = [];
   openTagForm = false;
+  existingFoodTags: FoodTag[] = [];
+  foodListSearch: FoodEntry[] = [];
   dayFoodList: FoodEntry[] = [];
   events: CalendarEvent[] = [];
-  searchView = false;
   @ViewChild('modalContent', {static: true}) modalContent: TemplateRef<any> | undefined;
   profileForm = this.fb.group({
     foodEntry: ['', Validators.required],
@@ -42,6 +42,16 @@ export class CalendarComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
+    this.foodTagService.getAllTags()
+      .subscribe({
+        next: (data) => {
+          console.log("tags", data);
+          this.existingFoodTags = data;
+        },
+        error: (e) => console.error(e)
+      })
+
     this.loadAllEntries();
   }
 
@@ -60,9 +70,9 @@ export class CalendarComponent implements OnInit {
    * For some reason they are the opposite in the library; day is a month and vise versa.
    * @param view
    */
-  setView(view: CalendarView) {
+  setView(view: any) {
     console.log("changing view")
-    this.searchView = false;
+    this.foodListSearch = [];
 
     if (this.view === 'month') {
       this.foodList = [];
@@ -80,6 +90,26 @@ export class CalendarComponent implements OnInit {
     return this.profileForm.controls;
   }
 
+  searchFoodEntries(value: string) {
+    this.foodEntryService.searchEntries(value)
+      .subscribe({
+        next: (data) => {
+          this.foodListSearch = data;
+        },
+        error: (e) => console.error(e)
+      });
+  }
+
+  searchFoodTags(value: string) {
+    this.foodTagService.searchTags(value)
+      .subscribe({
+        next: (data) => {
+          this.foodListSearch = data;
+        },
+        error: (e) => console.error(e)
+      })
+  }
+
   handleDeleteFoodEntry(food: any) {
     this.foodEntryService.deleteEntry(food.id)
       .subscribe({
@@ -93,10 +123,6 @@ export class CalendarComponent implements OnInit {
 
   get t() {
     return this.f.newTags as unknown as FormArray;
-  }
-
-  onSearch($event: boolean) {
-    this.searchView = $event;
   }
 
   get ticketFormGroups() {
@@ -124,7 +150,9 @@ export class CalendarComponent implements OnInit {
       .subscribe({
         next: (feRes) => {
 
-          this.updateDayEvents();
+          if (this.profileForm?.value?.newTags?.length === 0) {
+            this.updateDayEvents();
+          }
 
           // update calendar view
           let formattedDate = feRes.foodEntryDate + ' '
@@ -152,6 +180,7 @@ export class CalendarComponent implements OnInit {
                     .subscribe({
                       next: (res) => {
                         console.log(res);
+                        this.updateDayEvents();
                       }
                     });
                 },
@@ -160,7 +189,7 @@ export class CalendarComponent implements OnInit {
           });
 
           this.profileForm.reset();
-          this.profileForm.controls.newTags.reset();
+          (this.profileForm.get('newTags') as FormArray).clear();
 
         },
         error: (e) => console.error(e)
@@ -238,8 +267,14 @@ export class CalendarComponent implements OnInit {
     let color;
     if (tag.foodTagColor != null) {
       color = tagLookUp.get(tag.foodTagColor);
-      console.log(color);
     }
-    return `<h6><span class="badge ${color}">${tag.foodTagName}</span></h6>`;
+    return `<span class="badge ${color}">${tag.foodTagName}
+    <i (click)="handleDeleteFoodEntry(e)" class="fa-solid fa-xmark pointer"></i></span>`;
+  }
+
+  clearForm() {
+    console.log("clear form");
+    this.profileForm.reset();
+    (this.profileForm.get('newTags') as FormArray).clear();
   }
 }

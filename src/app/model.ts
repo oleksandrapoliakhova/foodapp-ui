@@ -61,7 +61,9 @@ export class AlertOptions {
 }
 
 export const tagLookUp = new Map<string, string>([
-  ['Blue', 'bg-primary'],
+  ['Blue', 'bg-info'],
   ['Red', 'bg-danger'],
-  ['Green', 'bg-success']
+  ['Green', 'bg-success'],
+  ['Yellow', 'bg-warning'],
+  ['Black', 'bg-dark']
 ]);

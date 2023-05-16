@@ -14,7 +14,6 @@ import {AlertComponent} from './alert';
 import {AccountModule} from "./account/account.module";
 import {ErrorInterceptor, JwtInterceptor} from "./auth-helper";
 import {FoodEntryModalComponent} from './food-entry-modal';
-import {SearchComponent} from './search/search.component';
 
 @NgModule({
   imports: [
@@ -34,7 +33,7 @@ import {SearchComponent} from './search/search.component';
     ReactiveFormsModule,
   ],
   declarations: [AppComponent,
-    CalendarComponent, AlertComponent, FoodEntryModalComponent, SearchComponent],
+    CalendarComponent, AlertComponent, FoodEntryModalComponent],
   exports: [AppComponent],
   bootstrap: [AppComponent],
   providers: [

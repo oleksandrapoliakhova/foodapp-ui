@@ -45,7 +45,42 @@
   </div>
 
   <div *ngIf="view === 'month'">
-    <app-search (searchResults)="onSearch($event)"></app-search>
+    <div class="input-group">
+      <input #entry aria-describedby="basic-addon2" aria-label="Search food entry or food tag"
+             class="form-control"
+             placeholder="Search food entry or food tag"
+             type="text">
+
+      <div class="input-group-append">
+        <button (click)="searchFoodEntries(entry.value);"
+                class="btn btn-outline-success" type="button">Food Entry
+        </button>
+
+        <button (click)="searchFoodTags(entry.value);"
+                class="btn btn-outline-success" type="button">Food Tag
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="foodListSearch.length != 0">
+      <div *ngFor="let e of foodListSearch" class="list-group">
+        <div class="list-group">
+
+          <div class="list-group-item list-group-item-action flex-column align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1">{{e.foodEntry}}</h5>
+            </div>
+            <div *ngFor="let tag of e.foodTagList">
+              <p [innerHTML]="getElementTag(tag)"></p>
+            </div>
+            <small class="text-muted">{{e.foodEntryDate}}</small>
+            <br>
+            <small class="text-muted">{{e.updatedTime}}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <div *ngIf="view === 'day'" class="d-grid gap-2">
@@ -72,7 +107,7 @@
     </div>
   </div>
 
-  <div *ngIf="!this.searchView">
+  <div *ngIf="foodListSearch.length === 0">
     <div [ngSwitch]="view">
       <mwl-calendar-month-view (dayClicked)="changeDay($event.day.date)"
                                *ngSwitchCase="CalendarView.Month"
@@ -101,11 +136,13 @@
           </div>
 
           <div class="tags">
-            <!-- to do -->
+            <div *ngFor="let tag of existingFoodTags">
+              <div [innerHTML]="getElementTag(tag)" class="custom-badge"></div>
+            </div>
           </div>
 
           <div>
-            <button (click)="addTag()" class="btn btn-outline-dark" type="button">
+            <button (click)="addTag()" class="btn btn-outline-dark add-tag" type="button">
               Add New Tag
               <i class="fa fa-plus-circle"></i>
             </button>
@@ -131,22 +168,23 @@
                     <option class="badge badge-success"> Green</option>
                     <option class="badge badge-danger"> Red</option>
                     <option class="badge badge-warning"> Yellow</option>
-                    <option class="badge badge-light"> White</option>
                     <option class="badge badge-dark"> Black</option>
                   </select>
                 </div>
 
-                <button (click)="removeTags(i)">Remove Tag</button>
+                <button (click)="removeTags(i)" class="btn btn-secondary btn-sm remove-tag" type="button">Remove Tag
+                </button>
+
               </div>
             </div>
 
           </div>
 
           <div class="modal-footer">
-            <button (click)="modalService.close(); modalView = false"
+            <button (click)="modalService.close(); clearForm(); modalView = false"
                     class="btn btn-secondary" type="button">Close
             </button>
-            <button (click)="modalService.close();" [disabled]="!profileForm.valid"
+            <button (click)="modalService.close()" [disabled]="!profileForm.valid"
                     class="btn btn-primary" type="submit">Submit
             </button>
           </div>
