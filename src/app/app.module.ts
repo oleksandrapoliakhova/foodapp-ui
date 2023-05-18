@@ -14,6 +14,7 @@ import {AlertComponent} from './alert';
 import {AccountModule} from "./account/account.module";
 import {ErrorInterceptor, JwtInterceptor} from "./auth-helper";
 import {FoodEntryModalComponent} from './food-entry-modal';
+import {ColorDirective} from './directives/color.directive';
 
 @NgModule({
   imports: [
@@ -33,7 +34,7 @@ import {FoodEntryModalComponent} from './food-entry-modal';
     ReactiveFormsModule,
   ],
   declarations: [AppComponent,
-    CalendarComponent, AlertComponent, FoodEntryModalComponent],
+    CalendarComponent, AlertComponent, FoodEntryModalComponent, ColorDirective],
   exports: [AppComponent],
   bootstrap: [AppComponent],
   providers: [

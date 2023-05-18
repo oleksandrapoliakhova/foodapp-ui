@@ -22,9 +22,14 @@ export class FoodTagService {
     return this.http.post <FoodTag>(`${environment.apiUrl}/food-tag/save-food-tag`, {foodTagName, foodTagColor})
   }
 
-  deleteTag(foodEntryId: any): Observable<any> {
-    let id = foodEntryId.toString();
-    return this.http.delete <FoodTag>(`${environment.apiUrl}/food-entry/delete-food-entry/${id}`, {})
+  deleteTag(id: number): Observable<any> {
+    return this.http.delete <FoodTag>(`${environment.apiUrl}/food-tag/delete-food-tag/${id}`, {})
+  }
+
+  deleteFoodTagIdFromEntry(entryId: number): Observable<any> {
+    // /delete-food-tag/{foodEntryId}/food-tags
+    console.log(`${environment.apiUrl}/delete-food-tag/${entryId.toString()}/food-tags`);
+    return this.http.delete <any>(`${environment.apiUrl}/food-tag/delete-food-tag/${entryId.toString()}/food-tags`, {})
   }
 
   getAllTags(): Observable<any> {

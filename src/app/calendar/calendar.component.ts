@@ -26,6 +26,8 @@ export class CalendarComponent implements OnInit {
   foodListSearch: FoodEntry[] = [];
   dayFoodList: FoodEntry[] = [];
   events: CalendarEvent[] = [];
+  searchResult = false;
+  selectedTags = new Set<number>();
   @ViewChild('modalContent', {static: true}) modalContent: TemplateRef<any> | undefined;
   profileForm = this.fb.group({
     foodEntry: ['', Validators.required],
@@ -41,17 +43,12 @@ export class CalendarComponent implements OnInit {
     private fb: FormBuilder) {
   }
 
+  get ticketFormGroups() {
+    return this.profileForm.controls.newTags.controls as FormGroup[];
+  }
+
   ngOnInit(): void {
-
-    this.foodTagService.getAllTags()
-      .subscribe({
-        next: (data) => {
-          console.log("tags", data);
-          this.existingFoodTags = data;
-        },
-        error: (e) => console.error(e)
-      })
-
+    this.getFoodTags();
     this.loadAllEntries();
   }
 
@@ -62,6 +59,7 @@ export class CalendarComponent implements OnInit {
   }
 
   createNewEntry() {
+    this.getFoodTags();
     this.modalView = true;
     this.modalService.open('modal-1');
   }
@@ -71,6 +69,7 @@ export class CalendarComponent implements OnInit {
    * @param view
    */
   setView(view: any) {
+    this.searchResult = false;
     console.log("changing view")
     this.foodListSearch = [];
 
@@ -85,51 +84,54 @@ export class CalendarComponent implements OnInit {
     this.view = view;
   }
 
-  // convenience getters for easy access to form fields
-  get f() {
-    return this.profileForm.controls;
-  }
-
   searchFoodEntries(value: string) {
+    if (!value) {
+      return;
+    }
     this.foodEntryService.searchEntries(value)
       .subscribe({
         next: (data) => {
           this.foodListSearch = data;
+          this.searchResult = this.foodListSearch.length === 0;
         },
         error: (e) => console.error(e)
       });
   }
 
   searchFoodTags(value: string) {
+    if (!value) {
+      return;
+    }
     this.foodTagService.searchTags(value)
       .subscribe({
         next: (data) => {
           this.foodListSearch = data;
+          this.searchResult = this.foodListSearch.length === 0;
         },
         error: (e) => console.error(e)
       })
   }
 
   handleDeleteFoodEntry(food: any) {
-    this.foodEntryService.deleteEntry(food.id)
+    console.log("food to delete", food.id);
+
+    this.foodTagService.deleteFoodTagIdFromEntry(food.id)
       .subscribe({
         next: () => {
-          this.events = this.events.filter((e) => e !== food);
-          this.dayFoodList = this.dayFoodList.filter((f) => f !== food);
-        },
-        error: (e) => console.error(e)
-      });
-  }
-
-  get t() {
-    return this.f.newTags as unknown as FormArray;
-  }
-
-  get ticketFormGroups() {
-    return this.t.controls as FormGroup[];
+          this.foodEntryService.deleteEntry(food.id)
+            .subscribe({
+              next: () => {
+                this.events = this.events.filter((e) => e !== food);
+                this.dayFoodList = this.dayFoodList.filter((f) => f !== food);
+              },
+              error: (e) => console.error(e)
+            });
+        }
+      })
   }
 
   onSubmit() {
+    console.log("submit the form");
     this.modalView = false;
     let food = '';
     let date = new Date();
@@ -138,10 +140,6 @@ export class CalendarComponent implements OnInit {
       food = this.profileForm.value.foodEntry;
       date = this.viewDate;
     }
-
-    console.log("this.profileForm.value");
-    console.log(this.profileForm.value);
-
     let formattedDate = this.datePipe.transform(date, "yyyy-MM-dd");
     let updatedTime = this.datePipe.transform(date, "hh:mm:ss");
 
@@ -150,36 +148,31 @@ export class CalendarComponent implements OnInit {
       .subscribe({
         next: (feRes) => {
 
-          if (this.profileForm?.value?.newTags?.length === 0) {
-            this.updateDayEvents();
-          }
+
+          // save existing food tags:
+          this.selectedTags.forEach(sc => {
+            this.foodTagService.appendTag(feRes.id, sc)
+              .subscribe({
+                next: () => {
+                  this.selectedTags.clear();
+                  this.updateDayEvents();
+                }
+              })
+          })
+
 
           // update calendar view
-          let formattedDate = feRes.foodEntryDate + ' '
-          this.events = [
-            ...this.events,
-            {
-              title: food,
-              start: formattedDate ? new Date(formattedDate) : new Date(),
-              id: feRes?.id,
-            }
-          ];
+          this.updateCalendarEvents(feRes, food);
 
-          if (this.profileForm?.value?.newTags) {
-            this.creationFoodTags = this.profileForm.value.newTags;
-          }
 
-          // save new food tags
-          this.creationFoodTags.forEach(t => {
-
+          this.profileForm?.value?.newTags.forEach(t => {
             this.foodTagService.saveTag(t.foodTagName, t.foodTagColor)
               .subscribe({
                 next: (res) => {
                   this.updateDayEvents();
                   this.foodTagService.appendTag(feRes.id, res.id)
                     .subscribe({
-                      next: (res) => {
-                        console.log(res);
+                      next: () => {
                         this.updateDayEvents();
                       }
                     });
@@ -188,9 +181,11 @@ export class CalendarComponent implements OnInit {
               });
           });
 
-          this.profileForm.reset();
-          (this.profileForm.get('newTags') as FormArray).clear();
+          this.updateDayEvents();
 
+          this.profileForm.reset();
+          this.selectedTags.clear();
+          (this.profileForm.get('newTags') as FormArray).clear();
         },
         error: (e) => console.error(e)
       });
@@ -206,15 +201,26 @@ export class CalendarComponent implements OnInit {
       .subscribe({
         next: (data) => {
           this.dayFoodList = data;
+          this.dayFoodList.forEach(e => {
+            e.foodTagList = [...new Set(e.foodTagList)]
+          })
           console.log("dayFoodList", this.dayFoodList);
         },
         error: (e) => console.error(e)
       });
   }
 
-  updateFoodEntry(e: FoodEntry) {
-    // todo
-    this.createNewEntry();
+  removeTags(index: number) {
+    (this.profileForm.get('newTags') as FormArray).removeAt(index);
+    this.selectedTags.delete(index);
+  }
+
+  getElementTagStyle(foodTagColor: string): string {
+    let color;
+    if (foodTagColor != null) {
+      color = tagLookUp.get(foodTagColor);
+    }
+    return 'badge ' + color;
   }
 
   addTag(): void {
@@ -227,19 +233,20 @@ export class CalendarComponent implements OnInit {
     }));
   }
 
-  removeTags(index: number) {
-    (this.profileForm.get('newTags') as FormArray).removeAt(index);
-  }
-
-  private loadAllEntries() {
-    this.foodEntryService.getAllEntries()
+  deleteTag(id: number) {
+    console.log("tag id to delete: ", id);
+    this.foodTagService.deleteTag(id)
       .subscribe({
-        next: (data) => {
-          this.foodList = data;
-          this.loadFoodEntries(this.foodList);
+        next: () => {
+          this.selectedTags.delete(id);
+          this.getFoodTags();
         },
         error: (e) => console.error(e)
       });
+  }
+
+  selectTag(id: number) {
+    this.selectedTags.add(id);
   }
 
   /**
@@ -263,18 +270,44 @@ export class CalendarComponent implements OnInit {
     });
   }
 
-  getElementTag(tag: FoodTag) {
-    let color;
-    if (tag.foodTagColor != null) {
-      color = tagLookUp.get(tag.foodTagColor);
-    }
-    return `<span class="badge ${color}">${tag.foodTagName}
-    <i (click)="handleDeleteFoodEntry(e)" class="fa-solid fa-xmark pointer"></i></span>`;
-  }
-
   clearForm() {
     console.log("clear form");
     this.profileForm.reset();
     (this.profileForm.get('newTags') as FormArray).clear();
+  }
+
+  private getFoodTags() {
+    this.foodTagService.getAllTags()
+      .subscribe({
+        next: (data) => {
+          console.log("tags", data);
+          this.existingFoodTags = data;
+        },
+        error: (e) => console.error(e)
+      })
+  }
+
+  private updateCalendarEvents(feRes: FoodEntry, food: string) {
+    let formattedDate = feRes.foodEntryDate + ' '
+    this.events = [
+      ...this.events,
+      {
+        title: food,
+        start: formattedDate ? new Date(formattedDate) : new Date(),
+        id: feRes?.id,
+      }
+    ];
+  }
+
+  private loadAllEntries() {
+    this.foodEntryService.getAllEntries()
+      .subscribe({
+        next: (data) => {
+          this.foodList = data;
+          console.log("load all entries", this.foodList);
+          this.loadFoodEntries(this.foodList);
+        },
+        error: (e) => console.error(e)
+      });
   }
 }

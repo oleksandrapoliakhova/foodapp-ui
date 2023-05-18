@@ -62,6 +62,7 @@
       </div>
     </div>
 
+
     <div *ngIf="foodListSearch.length != 0">
       <div *ngFor="let e of foodListSearch" class="list-group">
         <div class="list-group">
@@ -71,7 +72,7 @@
               <h5 class="mb-1">{{e.foodEntry}}</h5>
             </div>
             <div *ngFor="let tag of e.foodTagList">
-              <p [innerHTML]="getElementTag(tag)"></p>
+              <span [ngClass]="getElementTagStyle(tag.foodTagColor)">{{tag.foodTagName}}</span>
             </div>
             <small class="text-muted">{{e.foodEntryDate}}</small>
             <br>
@@ -80,6 +81,13 @@
         </div>
       </div>
     </div>
+
+    <div *ngIf="searchResult">
+      <div class="alert alert-warning" role="alert">
+        No matches found.
+      </div>
+    </div>
+
 
   </div>
 
@@ -94,11 +102,10 @@
             <h5 class="mb-1">{{e.foodEntry}}</h5>
             <div class="float-right">
               <i (click)="handleDeleteFoodEntry(e)" class="fas fa-fw fa-trash-alt pointer"></i>
-              <i (click)="updateFoodEntry(e)" class="fas fa-fw fa-pencil-alt pointer"></i>
             </div>
           </div>
           <div *ngFor="let tag of e.foodTagList">
-            <p [innerHTML]="getElementTag(tag)"></p>
+            <span [ngClass]="getElementTagStyle(tag.foodTagColor)" class="custom-margin">{{tag.foodTagName}}</span>
           </div>
           <small class="text-muted">{{e.updatedTime}}</small>
         </div>
@@ -137,7 +144,9 @@
 
           <div class="tags">
             <div *ngFor="let tag of existingFoodTags">
-              <div [innerHTML]="getElementTag(tag)" class="custom-badge"></div>
+       <span (click)="selectTag(tag.id);" [ngClass]="getElementTagStyle(tag.foodTagColor)"
+             class="pointer custom-margin" clickColor>{{tag.foodTagName}}
+         <i (click)="deleteTag(tag.id);" class="fa-solid fa-xmark pointer"></i></span>
             </div>
           </div>
 

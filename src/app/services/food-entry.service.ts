@@ -44,4 +44,6 @@ export class FoodEntryService {
   searchEntries(stringSearch: string): Observable<any> {
     return this.http.get <FoodEntryResponse>(`${environment.apiUrl}/food-entry/search-food-entries/${stringSearch}`)
   }
+
+
 }
