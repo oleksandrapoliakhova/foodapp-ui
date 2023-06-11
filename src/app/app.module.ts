@@ -1,5 +1,5 @@
 import {NgModule} from '@angular/core';
-import {CommonModule, DatePipe} from '@angular/common';
+import {CommonModule, DatePipe, HashLocationStrategy, LocationStrategy} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {BrowserModule} from '@angular/platform-browser';
 import {FlatpickrModule} from 'angularx-flatpickr';
@@ -38,6 +38,7 @@ import {ColorDirective} from './directives/color.directive';
   exports: [AppComponent],
   bootstrap: [AppComponent],
   providers: [
+    {provide: LocationStrategy, useClass: HashLocationStrategy},
     DatePipe,
     {provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true},
     {provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true}
