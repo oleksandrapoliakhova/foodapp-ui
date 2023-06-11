@@ -4,7 +4,10 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8080'
+  // local
+  // apiUrl: 'http://localhost:8080'
+  //prod
+  apiUrl: 'https://foodapp-poliakhova2.herokuapp.com/'
 };
 
 /*
