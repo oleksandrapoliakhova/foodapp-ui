@@ -7,7 +7,7 @@ export const environment = {
   // local
   // apiUrl: 'http://localhost:8080'
   //prod
-  apiUrl: 'https://foodapp-poliakhova2.herokuapp.com/'
+  apiUrl: 'https://foodapp-poliakhova2.herokuapp.com'
 };
 
 /*
